@@ -10,17 +10,25 @@ const md5 = require('md5')
 // Make Express use its own built-in body parser for both urlencoded and JSON body data. 
 app.use(express.urlencoded({ extended: true}))
 app.use(express.json())
-
+// Require morgan
+const morgan = require('morgan')
+//Require fs
+const fs = require('fs')
 // Server port
 var port = args['port']
 // Command line options
 var debug = args['debug']
 var log = args['log']
-var help = args['help']
 // Start server
 const server = app.listen(port, () => {
     console.log('App listening on port %PORT%'.replace('%PORT%', port))
 })
+
+// Create access log file if --log=true
+if (args.log) {
+  const accesslog = fs.createWriteStream('access.log', {flags: 'a'})
+  app.use(morgan('combined', {stream: accesslog}))
+}
 
 app.post('/',(req, res, next) => {
   let logdata = {
@@ -68,7 +76,7 @@ app.get('/app/flip/call/tails', (req, res) => {
     res.status(200)
     res.json(flipACoin("tails"))
 })
-if (debug == 'true') {
+if (args.debug) {
   app.get('/app/log/access', (req, res) => {
     try {
       const stmt = logdb.prepare('SELECT * FROM accesslog').all()
@@ -110,25 +118,7 @@ if (args.help || args.h) {
 
 
 
-// let logger = (req, res, next) => {
-//   let logdata = {
-//     remoteaddr: req.ip,
-//     remoteuser: req.user,
-//     time: Date.now(),
-//     method: req.method,
-//     url: req.url,
-//     protocol: req.protocol,
-//     httpversion: req.httpVersion,
-//     secure: req.secure,
-//     status: res.statusCode,
-//     referer: req.headers['referer'],
-//     useragent: req.headers['user-agent']
-//   }
-//   console.log(logdata)
-//   next()
-// }
-
-// app.use(logger)
+// Functions
 
 function coinFlip() {
   return (Math.floor(Math.random() * 2) == 0) ? "heads" : "tails";
@@ -142,7 +132,6 @@ for (let i = 0; i < flips; i++) {
 return output;
 }
 
-// Functions
 function countFlips(array) {
   let countArray = [];
   let headsCount = 0;
