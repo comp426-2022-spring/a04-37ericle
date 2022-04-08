@@ -57,6 +57,29 @@ if (debug == 'true') {
   })
 }
 
+app.use((req, res, next) => {
+  let logdata = {
+    remoteaddr: req.ip,
+    remoteuser: req.user,
+    time: Date.now(),
+    method: req.method,
+    url: req.url,
+    protocol: req.protocol,
+    httpversion: req.httpVersion,
+    status: res.statusCode,
+    referer: req.headers['referer'],
+    useragent: req.headers['user-agent']
+}
+  const logger = logdb.prepare('INSERT INTO accesslog (remoteaddr, remoteuser, datetime, method, url, protocol, httpversion, secure, referer, useragent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+  //('INSERT INTO accesslog (remoteaddr, remoteuser, datetime, method, url, protocol, httpversion, secure, status, referer, useragent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+  const info = logger.run(logdata.remoteaddr, logdata.remoteuser, logdata.time, logdata.method, logdata.url, logdata.protocol, logdata.httpversion, logdata.status, logdata.referer, logdata.useragent)
+  //(logdata.remoteaddr, logdata.remoteuser, logdata.time, logdata.method, logdata.url, logdata.protocol, logdata.httpversion, logdata.secure, logdata.status, logdata.referer, logdata.useragent)
+  res.json(info)
+  console.log(info)
+  next()
+})
+
+
 
 // let logger = (req, res, next) => {
 //   let logdata = {

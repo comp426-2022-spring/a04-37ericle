@@ -7,7 +7,7 @@ let row = stat.get()
 if (row === undefined) {
     console.log('Log database appears to be empty. Creating log database...')
     const sqlInit = `
-        CREATE TABLE access ( 
+        CREATE TABLE accesslog ( 
             id INTEGER PRIMARY KEY, 
             remoteaddr VARCHAR, 
             remoteuser VARCHAR, 
@@ -20,9 +20,8 @@ if (row === undefined) {
             status INTEGER, 
             referer VARCHAR, 
             useragent VARCHAR
-            )
-    `
-    //logdb.exec(sqlInit)
+            )`
+    logdb.exec(sqlInit)
 } else {
     console.log('Log database exists')
 }
