@@ -25,7 +25,7 @@ const server = app.listen(port, () => {
 })
 
 // Create access log file if --log=true
-if (args.log) {
+if (args.log=='true') {
   const accesslog = fs.createWriteStream('access.log', {flags: 'a'})
   app.use(morgan('combined', {stream: accesslog}))
 }
